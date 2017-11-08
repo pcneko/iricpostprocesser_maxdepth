@@ -5,24 +5,20 @@
 !-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-!
 program main
     implicit none
-    integer          :: i, j, file_num, inum, jnum, totalnum
-    ! real             :: hoge
+
+    integer,parameter                 :: &num_c                     = 23,&
+                                         &x_c                       =  3,&
+                                         &y_c                       =  4,&
+                                         &depth_c                   =  5,&
+                                         &elevation_c               =  6,&
+                                         &water_surface_elavation_c =  7,&
+                                         &elevationchange_c         =  9
+    integer                           :: i, j, file_num, inum, jnum, totalnum
     real, allocatable, dimension(:)   :: max_wse, max_depth, max_elevation, max_elevationchange, hit_num
     real, allocatable, dimension(:,:) :: hit_pos
-    integer,parameter :: num_file_min                   = 182,&
-                        &num_file_max                   = 360,&
-                        &num_c                     = 23,&
-                        &num_r                  = 25524,&
-                        &x_c                    = 3,&
-                        &y_c                    = 4,&
-                        &depth_c                   =  5,&
-                        &depth_threshold         =  0.1,&
-                        &elevation_c               =  6,&
-                        &water_surface_elavation_c =  7,&
-                        &elevationchange_c         =  9
-    real,dimension(num_c) :: value
-    character(len=3)  :: number
-    character(len=30) :: file_name
+    real,dimension(num_c)             :: value
+    character(len= 3)                 :: number
+    character(len=19)                 :: file_name
 
                         
 
@@ -38,6 +34,7 @@ program main
     write(*,*)("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
     i = 0
     j = 0
+    dfn_min2max = num_file_max - num_file_min
 
     write(number,'(i3.3)')num_file_min
     file_name = "data/Result_"//number//".csv"
@@ -53,7 +50,7 @@ program main
 
     do file_num = num_file_min, num_file_max
         write(number,'(i3.3)')file_num
-        file_name = "./data/Result_"//number//".csv"
+        file_name = "data/Result_"//number//".csv"
         open(10, file = file_name, status = 'old')
         
         do j = 1, 3
@@ -77,7 +74,22 @@ program main
             j = j + 1
         enddo ! J loop
 900 continue
-    print*,file_num
+    dfn = file_num - num_file_min
+    if ( dfn .mod. 5 == 0 )then
+        call progress_bar(dfn, dfn_min2max)
+    endif
+    close(10)
     enddo     ! File loop
+
+    ! output process
+
+contains
+    
+    subroutine progress_bar(dfn, dfn_min2max) ! dfn means "delta file number" (^^)
+
+        
+        progress = 
+        write(*,*)(progress)
+        
 
 end program main
