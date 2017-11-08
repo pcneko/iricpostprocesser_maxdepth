@@ -6,21 +6,22 @@
 program main
     implicit none
 
-    integer,parameter                 :: &num_c                     = 23,&
+    integer,parameter                 :: num_c                     = 23,&
                                          &x_c                       =  3,&
                                          &y_c                       =  4,&
                                          &depth_c                   =  5,&
                                          &elevation_c               =  6,&
                                          &water_surface_elavation_c =  7,&
                                          &elevationchange_c         =  9
-    integer                           :: i, j, file_num, inum, jnum, totalnum
+    integer                           :: i, j, file_num, inum, jnum, totalnum, dfn, dfn_min2max
     real, allocatable, dimension(:)   :: max_wse, max_depth, max_elevation, max_elevationchange, hit_num
     real, allocatable, dimension(:,:) :: hit_pos
     real,dimension(num_c)             :: value
     character(len= 3)                 :: number
     character(len=19)                 :: file_name
 
-                        
+
+integer,parameter :: num_file_max=360,num_file_min=190,depth_threshold=0.1
 
 ! depth, elevation, elevationchange, 
 ! こいつ求めたい → watersurfaceelavation
@@ -75,21 +76,35 @@ program main
         enddo ! J loop
 900 continue
     dfn = file_num - num_file_min
-    if ( dfn .mod. 5 == 0 )then
+    if ( mod(dfn,2) == 0 )then
         call progress_bar(dfn, dfn_min2max)
     endif
     close(10)
     enddo     ! File loop
 
     ! output process
+    write(*,*)""
+    write(*,*)"-*-*-*-*-*-*-*- Output Process Start -*-*-*-*-*-*-*-"
 
 contains
-    
-    subroutine progress_bar(dfn, dfn_min2max) ! dfn means "delta file number" (^^)
 
-        
-        progress = 
-        write(*,*)(progress)
-        
+    
+    subroutine progress_bar(idx, total) ! dfn means "delta file number" (^^)
+        integer           :: idx, total, i
+        real              :: progress
+        progress = real(idx)/real(total)
+        write(*,'(a,$)')"["
+        do i = 1, 30*progress
+            write(*,'(a,$)')"="
+        enddo
+        write(*,'(a,$)')"ε≡ﾍ( ´Д`)ﾉ"
+        do i = 1, 30*(1-progress)
+            write(*,'(a,$)')" "
+        enddo
+        write(*,'(a,$)')"]"
+        write(*,'(f5.1,$)')progress*100
+        write(*,'(2a,$)')' percent',char(13)
+        if(idx.eq.total)write(*,*),''
+    end subroutine
 
 end program main
