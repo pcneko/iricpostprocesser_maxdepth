@@ -22,18 +22,13 @@ program main
     character(len= 3)                    :: number
     character(len=19)                    :: file_name
 
-
-! depth, elevation, elevationchange, 
-! こいつ求めたい → watersurfaceelavation
-
-! depth <= 0.01 
-! depth = ゴミ
     write(*,*)("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
     write(*,*)("*                   IRIC postprocess                              *")
     write(*,*)("*      max water surface elevation searcher by R.Kaneko           *")
     write(*,*)("*                 (^o^)ノ          (7616607[at]ed.tus.ac.jp)      *")
     write(*,*)("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
     
+! input calc config
     open( 20, file = 'input.cfg', status = 'old' )
     read(20,*)
     read(20,*)file_num_min
@@ -46,9 +41,12 @@ program main
     write(*,*)"file_num_min = ", file_num_min
     write(*,*)"file_num_max = ", file_num_max
     write(*,*)"depth_threshold = ", depth_threshold
+
+
     write(*,*)""
     write(*,*)"-*-*-*-*-*-*-*- Calc Process Start -*-*-*-*-*-*-*-"
 
+! make allocate
     i = 0
     j = 0
     dfn_min2max = file_num_max - file_num_min
@@ -64,6 +62,7 @@ program main
     allocate(max_wse(totalnum), max_depth(totalnum), max_elevation(totalnum), &
             &max_elevationchange(totalnum), hit_num(totalnum), hit_pos(2,totalnum))
 
+! initialize
     max_wse             = 0
     max_depth           = 0
     max_elevation       = 0
@@ -71,8 +70,8 @@ program main
     hit_num             = 0
     hit_pos             = 0
 
-
-    do file_num = file_num_min, file_num_max
+! read file and get data when wse is max
+    do file_num = file_num_min, file_num_max ! File loop
         write(number,'(i3.3)')file_num
         file_name = "data/Result_"//number//".csv"
         open(10, file = file_name, status = 'old')
@@ -99,11 +98,6 @@ program main
         enddo ! J loop
 900 continue
 
-! do j = 1, totalnum
-!     PRINT*,j,hit_num(j)
-!     if(hit_num(j)>0)stop
-! enddo
-! stop
     dfn = file_num - file_num_min
     if ( mod(dfn,2) == 0 ) call progress_bar(dfn, dfn_min2max)
     close(10)
@@ -112,12 +106,11 @@ program main
     write(*,*)"-*-*-*-*-*-*-*- Calc Process End -*-*-*-*-*-*-*-"
     write(*,*)""
 
-    ! output process
+! output process
     write(*,*)"-*-*-*-*-*-*-*- Output Process Start -*-*-*-*-*-*-*-"
     open( 30, file = "calc_result.csv", status = 'replace' )
     write( 30, '(7(a,","))' )"hitFileNum","X","Y","Depth(m)","Elevation(m)","WaterSurfaceElevation(m)","ElevationChange(m)"
     do j = 1, totalnum
-        ! write(*,*)hit_num,hit_pos(1,j),hit_pos(2,j),max_depth(j),max_elevation(j),max_wse(j),max_elevationchange(j)
         write( 30, '((i4),",",(2(f15.8,",")),(f18.16),",",2((f14.11),","),(f13.10))' )&
                                &hit_num(j),hit_pos(1,j),hit_pos(2,j),max_depth(j),&
                                &max_elevation(j),max_wse(j),max_elevationchange(j)
