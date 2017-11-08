@@ -1,0 +1,4 @@
+calc_result.csv
+*.out
+.DS_Store
+data/
