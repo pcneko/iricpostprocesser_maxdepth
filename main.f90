@@ -6,22 +6,21 @@
 program main
     implicit none
 
-    integer,parameter                 :: num_c                     = 23,&
+    integer,parameter                    :: num_c                     = 23,&
                                          &x_c                       =  3,&
                                          &y_c                       =  4,&
                                          &depth_c                   =  5,&
                                          &elevation_c               =  6,&
                                          &water_surface_elavation_c =  7,&
                                          &elevationchange_c         =  9
-    integer                           :: i, j, file_num, inum, jnum, totalnum, dfn, dfn_min2max
-    real, allocatable, dimension(:)   :: max_wse, max_depth, max_elevation, max_elevationchange, hit_num
-    real, allocatable, dimension(:,:) :: hit_pos
-    real,dimension(num_c)             :: value
-    character(len= 3)                 :: number
-    character(len=19)                 :: file_name
+    integer                              :: i, j, file_num, inum, jnum, totalnum, dfn, dfn_min2max, num_file_max, num_file_min
+    real                                 :: depth_threshold
+    real, allocatable, dimension(:)      :: max_wse, max_depth, max_elevation, max_elevationchange, hit_num
+    integer, allocatable, dimension(:,:) :: hit_pos
+    real,dimension(num_c)                :: value
+    character(len= 3)                    :: number
+    character(len=19)                    :: file_name
 
-
-integer,parameter :: num_file_max=360,num_file_min=190,depth_threshold=0.1
 
 ! depth, elevation, elevationchange, 
 ! こいつ求めたい → watersurfaceelavation
@@ -33,6 +32,22 @@ integer,parameter :: num_file_max=360,num_file_min=190,depth_threshold=0.1
     write(*,*)("*      max water surface elevation searcher by R.Kaneko           *")
     write(*,*)("*                 (^o^)ノ          (7616607@ed.tus.ac.jp)         *")
     write(*,*)("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
+    
+    open( 20, file = 'input.cfg', status = 'old' )
+    read(20,*)
+    read(20,*)num_file_min
+    read(20,*)
+    read(20,*)num_file_max
+    read(20,*)
+    read(20,*)depth_threshold
+    close(20)
+    write(*,*)""
+    write(*,*)"num_file_min = ", num_file_min
+    write(*,*)"num_file_max = ", num_file_max
+    write(*,*)"depth_threshold = ", depth_threshold
+    write(*,*)""
+    write(*,*)"-*-*-*-*-*-*-*- Calc Process Start -*-*-*-*-*-*-*-"
+
     i = 0
     j = 0
     dfn_min2max = num_file_max - num_file_min
@@ -72,7 +87,7 @@ integer,parameter :: num_file_max=360,num_file_min=190,depth_threshold=0.1
                     hit_pos(2,j) = value(y_c)
                 endif
             endif
-            j = j + 1
+            j = j + 1            
         enddo ! J loop
 900 continue
     dfn = file_num - num_file_min
@@ -81,10 +96,21 @@ integer,parameter :: num_file_max=360,num_file_min=190,depth_threshold=0.1
     endif
     close(10)
     enddo     ! File loop
+    write(*,*)"-*-*-*-*-*-*-*- Calc Process End -*-*-*-*-*-*-*-"
+    write(*,*)""
 
     ! output process
-    write(*,*)""
     write(*,*)"-*-*-*-*-*-*-*- Output Process Start -*-*-*-*-*-*-*-"
+    open( 30, file = "calc_result.csv", status = 'replace' )
+    do j = 1, totalnum
+        ! write(*,*)hit_num,hit_pos(1,j),hit_pos(2,j),max_depth(j),max_elevation(j),max_wse(j),max_elevationchange(j)
+        write( 30, '(3((i2.2),","),(f17.16),",",(f13.2),",",(f13.2),",",(f12.6))')&
+                               &hit_num(j),(hit_pos(i,j),i=1,2),max_depth(j),&
+                               &max_elevation(j),max_wse(j),max_elevationchange(j)
+    enddo
+    close(30)
+    write(*,*)"-*-*-*-*-*-*-*- Output Process End -*-*-*-*-*-*-*-"
+    
 
 contains
 
