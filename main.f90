@@ -51,8 +51,8 @@ program main
     j = 0
     dfn_min2max = file_num_max - file_num_min
 
-    write(number,'(i3.3)')file_num_min
-    file_name = "data/Result_"//number//".csv"
+    write(number,'(i3)')file_num_min
+    file_name = "data/Result_"//trim(adjustl(number))//".csv"
     open(10, file = file_name, status ='old')
     read(10,*)
     read(10,*)inum,jnum
@@ -72,8 +72,8 @@ program main
 
 ! read file and get data when wse is max
     do file_num = file_num_min, file_num_max ! File loop
-        write(number,'(i3.3)')file_num
-        file_name = "data/Result_"//number//".csv"
+        write(number,'(i3)')file_num
+        file_name = "data/Result_"//trim(adjustl(number))//".csv"
         open(10, file = file_name, status = 'old')
         
         do j = 1, 3
